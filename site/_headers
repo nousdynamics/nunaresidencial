@@ -1,0 +1,20 @@
+# Cloudflare Pages - headers
+# Seguranca basica em tudo
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# Assets versionados (hash no nome) - cache longo e imutavel
+/wp-content/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/wp-includes/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/cdn-cgi/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML sempre revalida
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate

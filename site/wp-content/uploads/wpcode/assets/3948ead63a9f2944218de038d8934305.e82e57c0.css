@@ -1,0 +1,17 @@
+.jet-listing-grid__slider-icon.prev-arrow.slick-arrow {
+    background-color: white !important; /* Fundo branco */
+    border-radius: 50% !important; /* Bordas arredondadas */
+    display: flex !important; /* Para centralizar o ícone */
+    justify-content: center !important; /* Centralizar horizontalmente */
+    align-items: center !important; /* Centralizar verticalmente */
+    padding: 10px !important; /* Espaço interno ao redor do ícone */
+    border: 2px solid #F07F3C !important; /* Borda de 2px na cor #F07F3C */
+}
+
+.jet-listing-grid__slider-icon.prev-arrow.slick-arrow svg path {
+    fill: #F07F3C !important; /* Cor do ícone preto */
+}
+
+.jet-listing-grid__slider-icon.next-arrow.slick-arrow {
+    border-radius: 50% !important; /* Bordas arredondadas */
+}

@@ -1,0 +1,11 @@
+{
+  "name": "nuna-residencial-lp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Clone estatico da landing nunaresidencial.com.br para Cloudflare Pages",
+  "scripts": {
+    "preview": "python -m http.server 8765 --directory site",
+    "deploy": "wrangler pages deploy site --project-name=nuna-residencial",
+    "login": "wrangler login"
+  }
+}
