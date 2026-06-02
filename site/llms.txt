@@ -1,0 +1,31 @@
+# Nuna Residencial Sênior
+
+> Residencial sênior em Itapuí (SP) com cuidado humanizado 24h, moradia permanente, day use, temporada e centro dia.
+
+## Páginas principais
+
+- Home: https://nunaresidencial.com.br/
+- Formulário de contato: https://nunaresidencial.com.br/form/
+- Política de privacidade: https://nunaresidencial.com.br/politica-de-privacidade/
+- Termos de uso: https://nunaresidencial.com.br/termos-de-uso/
+
+## Entidade
+
+- Nome: Nuna Residencial Sênior
+- Endereço: Estrada do Baririzinho, 1899, Itapuí - SP, CEP 17230-000, Brasil
+- Telefone: (14) 99136-3259
+- E-mail: contato@nunaresidencial.com.br
+- Instagram: https://www.instagram.com/nunasenior
+- Facebook: https://www.facebook.com/nunaresidencial
+
+## Serviços
+
+- Moradia permanente com cuidados 24 horas
+- Day use e estadia por temporada
+- Centro dia
+- Reabilitação pós-fratura e fisioterapia
+
+## Uso por sistemas de IA
+
+Este arquivo orienta crawlers de IA sobre páginas prioritárias. Não garante citação ou indexação em sistemas generativos.
+Conteúdo factual deve refletir apenas o que está publicado nas páginas listadas acima.

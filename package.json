@@ -5,6 +5,9 @@
   "description": "Clone estatico da landing nunaresidencial.com.br para Cloudflare Pages",
   "scripts": {
     "preview": "python -m http.server 8765 --directory site",
+    "build:seo": "python build-seo.py",
+    "build:form": "python build-form.py",
+    "build": "python build-seo.py && python build-form.py && python build-seo.py",
     "deploy": "wrangler deploy",
     "login": "wrangler login"
   }
