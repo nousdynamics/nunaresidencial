@@ -1,5 +1,6 @@
-name = "nuna-residencial"
+name = "nunaresidencial"
 compatibility_date = "2024-11-01"
 
-# Pasta com o site estatico que sera publicado no Cloudflare Pages
-pages_build_output_dir = "site"
+# Site estatico servido via Workers Static Assets (deploy: npx wrangler deploy)
+[assets]
+directory = "./site"
