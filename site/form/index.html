@@ -1221,62 +1221,112 @@ var ElementorProFrontendConfig = {"ajaxurl":"https:\/\/nunaresidencial.com.br\/w
 
 <!-- ===================== FUNIL DE QUALIFICACAO (/form) ===================== -->
 <style>
-.nf-overlay{position:fixed;inset:0;background:rgba(11,90,64,.55);backdrop-filter:blur(2px);
- display:none;align-items:center;justify-content:center;z-index:999999;padding:16px;
- font-family:'Roboto','Inter',system-ui,sans-serif}
-.nf-overlay.nf-open{display:flex}
-.nf-card{background:#fff;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;
- border-radius:20px;padding:28px 24px;box-shadow:0 18px 60px rgba(0,0,0,.35);
- position:relative;animation:nf-in .25s ease}
-@keyframes nf-in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-.nf-close{position:absolute;top:12px;right:14px;background:none;border:none;font-size:26px;
- line-height:1;color:#9aa0a6;cursor:pointer;padding:4px}
-.nf-close:hover{color:#4B4B53}
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Mulish:wght@400;500;600;700;800&display=swap');
+:root{
+ --nf-cream:#FBF7EF;--nf-card:#FFFDF8;--nf-ink:#0B3A2C;--nf-green:#18A871;
+ --nf-green-d:#0D7A52;--nf-amber:#E0A33B;--nf-muted:#6E7E73;--nf-line:#E7E0D2;
+}
+.nf-overlay{position:fixed;inset:0;z-index:999999;display:none;align-items:center;justify-content:center;padding:18px;
+ background:radial-gradient(120% 120% at 50% 0%,rgba(13,122,82,.42),rgba(11,58,44,.74));
+ -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+ font-family:'Mulish',system-ui,sans-serif}
+.nf-overlay.nf-open{display:flex;animation:nf-fade .3s ease}
+@keyframes nf-fade{from{opacity:0}to{opacity:1}}
+.nf-card{position:relative;width:100%;max-width:462px;max-height:94vh;overflow-y:auto;
+ background:var(--nf-card);border-radius:28px;padding:36px 32px 32px;
+ box-shadow:0 30px 80px -20px rgba(11,58,44,.55),0 1px 0 rgba(255,255,255,.7) inset;
+ animation:nf-rise .45s cubic-bezier(.16,1,.3,1)}
+@keyframes nf-rise{from{opacity:0;transform:translateY(26px) scale(.985)}to{opacity:1;transform:none}}
+.nf-card::before{content:"";position:absolute;inset:0;border-radius:28px;padding:1px;pointer-events:none;
+ background:linear-gradient(180deg,rgba(224,163,59,.55),rgba(24,168,113,.22) 55%,transparent);
+ -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+ -webkit-mask-composite:xor;mask-composite:exclude}
+.nf-close{position:absolute;top:15px;right:15px;width:34px;height:34px;border-radius:50%;
+ border:1px solid var(--nf-line);background:#fff;color:var(--nf-muted);font-size:17px;line-height:1;
+ cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s}
+.nf-close:hover{background:var(--nf-ink);color:#fff;border-color:var(--nf-ink);transform:rotate(90deg)}
+.nf-brand{display:flex;align-items:center;justify-content:center;margin:2px 0 20px}
+.nf-wm{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:30px;letter-spacing:-.02em;
+ line-height:1;color:var(--nf-ink)}
+.nf-wm i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--nf-amber);margin-left:3px}
+.nf-eyebrow{display:block;text-align:center;font-size:11px;font-weight:800;letter-spacing:.2em;
+ text-transform:uppercase;color:var(--nf-amber);margin:0 0 9px}
 .nf-step{display:none}
-.nf-step.nf-active{display:block}
-.nf-logo{display:block;height:34px;margin:0 auto 14px}
-.nf-h{font-size:21px;font-weight:700;color:#0B5A40;margin:0 0 6px;text-align:center;line-height:1.25}
-.nf-sub{font-size:15px;color:#4B4B53;margin:0 0 20px;text-align:center;line-height:1.4}
-.nf-label{display:block;font-size:13px;font-weight:600;color:#4B4B53;margin:0 0 6px}
-.nf-input{width:100%;box-sizing:border-box;padding:13px 14px;font-size:16px;border:1.5px solid #d6dbd8;
- border-radius:12px;margin-bottom:14px;outline:none;transition:border-color .15s}
-.nf-input:focus{border-color:#18A871}
-.nf-err{color:#FF385C;font-size:13px;margin:-8px 0 12px;display:none}
-.nf-btn{width:100%;box-sizing:border-box;padding:15px;font-size:16px;font-weight:700;border:none;
- border-radius:12px;cursor:pointer;background:#18A871;color:#fff;transition:background .15s}
-.nf-btn:hover{background:#0D8E5F}
-.nf-opt{width:100%;box-sizing:border-box;text-align:left;padding:16px 18px;margin-bottom:12px;
- font-size:16px;font-weight:600;color:#0B5A40;background:#F4FBF7;border:1.5px solid #D3F8E3;
- border-radius:14px;cursor:pointer;transition:all .15s}
-.nf-opt:hover{background:#D3F8E3;border-color:#18A871;transform:translateY(-1px)}
-.nf-opt small{display:block;font-weight:400;font-size:13px;color:#4B4B53;margin-top:2px}
-.nf-count{font-size:15px;color:#4B4B53;text-align:center;margin:18px 0}
-.nf-count b{color:#18A871;font-size:18px}
-.nf-link{display:block;text-align:center;margin-top:14px;font-size:14px;color:#9aa0a6;
+.nf-step.nf-active{display:block;animation:nf-step .4s ease}
+@keyframes nf-step{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.nf-h{font-family:'Fraunces',Georgia,serif;font-optical-sizing:auto;font-weight:600;font-size:27px;
+ line-height:1.15;letter-spacing:-.01em;color:var(--nf-ink);margin:0 0 8px;text-align:center}
+.nf-sub{font-size:15.5px;color:var(--nf-muted);margin:0 0 26px;text-align:center;line-height:1.5}
+.nf-field{margin-bottom:17px;text-align:left}
+.nf-label{display:block;font-size:13px;font-weight:700;color:var(--nf-ink);margin:0 0 7px}
+.nf-input{width:100%;box-sizing:border-box;padding:15px 16px;font-family:inherit;font-size:16.5px;
+ color:var(--nf-ink);background:#fff;border:1.5px solid var(--nf-line);border-radius:14px;outline:none;
+ transition:border-color .18s,box-shadow .18s}
+.nf-input::placeholder{color:#B7BEB6}
+.nf-input:focus{border-color:var(--nf-green);box-shadow:0 0 0 4px rgba(24,168,113,.14)}
+.nf-err{color:#C8443A;font-size:13.5px;margin:-4px 0 14px;display:none;text-align:left}
+.nf-btn{position:relative;width:100%;box-sizing:border-box;padding:17px;font-family:inherit;font-size:16.5px;
+ font-weight:800;letter-spacing:.02em;color:#fff;border:none;border-radius:14px;cursor:pointer;
+ background:linear-gradient(135deg,var(--nf-green),var(--nf-green-d));
+ box-shadow:0 12px 24px -8px rgba(13,122,82,.6);transition:transform .18s,box-shadow .18s}
+.nf-btn:hover{transform:translateY(-2px);box-shadow:0 18px 30px -8px rgba(13,122,82,.65)}
+.nf-btn:active{transform:translateY(0)}
+.nf-arrow{display:inline-block;margin-left:8px;transition:transform .2s}
+.nf-btn:hover .nf-arrow{transform:translateX(4px)}
+.nf-opt{position:relative;width:100%;box-sizing:border-box;text-align:left;padding:18px 46px 18px 20px;
+ margin-bottom:13px;font-family:inherit;font-size:16px;font-weight:700;color:var(--nf-ink);background:#fff;
+ border:1.5px solid var(--nf-line);border-radius:16px;cursor:pointer;
+ transition:border-color .18s,background .18s,transform .18s,box-shadow .18s}
+.nf-opt::after{content:"";position:absolute;right:19px;top:50%;width:9px;height:9px;
+ border-right:2px solid var(--nf-green);border-top:2px solid var(--nf-green);
+ transform:translateY(-50%) rotate(45deg);transition:right .18s}
+.nf-opt:hover{border-color:var(--nf-green);background:#F4FBF7;transform:translateY(-2px);
+ box-shadow:0 10px 22px -12px rgba(13,122,82,.5)}
+.nf-opt:hover::after{right:15px}
+.nf-opt small{display:block;font-weight:500;font-size:13px;color:var(--nf-muted);margin-top:3px}
+.nf-badge{width:74px;height:74px;margin:0 auto 18px;border-radius:50%;display:flex;align-items:center;
+ justify-content:center;background:linear-gradient(135deg,rgba(24,168,113,.16),rgba(224,163,59,.2));
+ color:var(--nf-green);animation:nf-pop .5s cubic-bezier(.18,1.4,.4,1)}
+@keyframes nf-pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.nf-badge svg{width:34px;height:34px}
+.nf-count{font-size:14.5px;color:var(--nf-muted);text-align:center;margin:20px 0 0}
+.nf-count b{color:var(--nf-green);font-weight:800}
+.nf-bar{height:5px;width:100%;background:var(--nf-line);border-radius:99px;overflow:hidden;margin-top:12px}
+.nf-bar i{display:block;height:100%;width:100%;border-radius:99px;
+ background:linear-gradient(90deg,var(--nf-green),var(--nf-amber))}
+.nf-step[data-step="obrigado"].nf-active .nf-bar i{animation:nf-deplete 5s linear forwards}
+@keyframes nf-deplete{from{width:100%}to{width:0}}
+.nf-link{display:block;text-align:center;margin-top:16px;font-family:inherit;font-size:14px;color:var(--nf-muted);
  background:none;border:none;cursor:pointer;width:100%}
-.nf-link:hover{color:#4B4B53}
-.nf-emoji{font-size:44px;text-align:center;margin:0 0 10px}
+.nf-link:hover{color:var(--nf-ink);text-decoration:underline}
 </style>
 
 <div class="nf-overlay" id="nf-overlay" role="dialog" aria-modal="true">
  <div class="nf-card">
   <button class="nf-close" id="nf-close" aria-label="Fechar">&times;</button>
+  <div class="nf-brand"><span class="nf-wm">nuna<i></i></span></div>
 
   <!-- Step: Lead -->
   <div class="nf-step nf-active" data-step="lead">
+   <span class="nf-eyebrow">Atendimento Nuna</span>
    <p class="nf-h">Vamos conversar sobre a Nuna</p>
-   <p class="nf-sub">Preencha seus dados para continuar.</p>
-   <label class="nf-label" for="nf-nome">Seu nome</label>
-   <input class="nf-input" id="nf-nome" type="text" placeholder="Nome completo" autocomplete="name">
-   <label class="nf-label" for="nf-whats">Seu WhatsApp</label>
-   <input class="nf-input" id="nf-whats" type="tel" placeholder="(14) 99999-9999" autocomplete="tel">
-   <div class="nf-err" id="nf-err">Preencha nome e um WhatsApp valido (com DDD).</div>
-   <button class="nf-btn" id="nf-lead-go">Continuar</button>
+   <p class="nf-sub">Preencha seus dados e a gente continua pelo WhatsApp.</p>
+   <div class="nf-field">
+    <label class="nf-label" for="nf-nome">Seu nome</label>
+    <input class="nf-input" id="nf-nome" type="text" placeholder="Nome completo" autocomplete="name">
+   </div>
+   <div class="nf-field">
+    <label class="nf-label" for="nf-whats">Seu WhatsApp</label>
+    <input class="nf-input" id="nf-whats" type="tel" placeholder="(14) 99999-9999" autocomplete="tel">
+   </div>
+   <div class="nf-err" id="nf-err">Preencha o nome e um WhatsApp valido com DDD.</div>
+   <button class="nf-btn" id="nf-lead-go">Continuar<span class="nf-arrow">&rarr;</span></button>
   </div>
 
   <!-- Step: Qualificacao -->
   <div class="nf-step" data-step="qualificacao">
-   <p class="nf-h">A mensalidade da Nuna parte de R$ 6.000/mes</p>
+   <span class="nf-eyebrow">Passo 2</span>
+   <p class="nf-h">A mensalidade parte de R$ 6.000/mes</p>
    <p class="nf-sub">Como isso se encaixa pra voce?</p>
    <button class="nf-opt" data-q="apto">Esta dentro do meu orcamento</button>
    <button class="nf-opt" data-q="orcamento">Esta acima do meu orcamento</button>
@@ -1285,6 +1335,7 @@ var ElementorProFrontendConfig = {"ajaxurl":"https:\/\/nunaresidencial.com.br\/w
 
   <!-- Step: Orcamento -->
   <div class="nf-step" data-step="orcamento">
+   <span class="nf-eyebrow">Quase la</span>
    <p class="nf-h">Qual orcamento mensal cabe pra voce?</p>
    <p class="nf-sub">Selecione a faixa mais proxima.</p>
    <button class="nf-opt" data-faixa="Ate R$ 1.000">Ate R$ 1.000</button>
@@ -1295,20 +1346,21 @@ var ElementorProFrontendConfig = {"ajaxurl":"https:\/\/nunaresidencial.com.br\/w
 
   <!-- Step: Obrigado (apto / orcamento) -->
   <div class="nf-step" data-step="obrigado">
-   <p class="nf-emoji">&#9989;</p>
+   <div class="nf-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
    <p class="nf-h" id="nf-ob-h">Recebemos seus dados!</p>
    <p class="nf-sub" id="nf-ob-sub">Vamos te levar pro WhatsApp pra continuar o atendimento.</p>
-   <button class="nf-btn" id="nf-wa-now">Falar agora no WhatsApp</button>
+   <button class="nf-btn" id="nf-wa-now">Falar agora no WhatsApp<span class="nf-arrow">&rarr;</span></button>
    <p class="nf-count">Redirecionando em <b id="nf-count">5</b>s...</p>
+   <div class="nf-bar"><i></i></div>
   </div>
 
   <!-- Step: Emprego (beco sem saida) -->
   <div class="nf-step" data-step="emprego">
-   <p class="nf-emoji">&#128188;</p>
+   <div class="nf-badge" style="background:linear-gradient(135deg,rgba(110,126,115,.16),rgba(224,163,59,.2));color:var(--nf-amber)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div>
    <p class="nf-h">Obrigado pelo interesse!</p>
    <p class="nf-sub">No momento nao recebemos curriculos por este canal.
     Agradecemos o contato e desejamos sucesso.</p>
-   <button class="nf-btn" id="nf-emp-close">Fechar</button>
+   <button class="nf-btn" id="nf-emp-close" style="background:linear-gradient(135deg,#8A958C,#6E7E73);box-shadow:0 12px 24px -8px rgba(110,126,115,.5)">Fechar</button>
   </div>
 
  </div>
