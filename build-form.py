@@ -38,6 +38,15 @@ def rewrite_assets(html: str) -> str:
         html = html.replace(a, b)
     return html
 
+
+# --- 1b. remove bloco seo-body do index --------------------------------------
+# build-seo.py injeta "<!-- nuna-seo-body -->...<style>" antes de </body> no
+# index.html. Se o funil ficasse depois desse marcador, o strip_old_seo do
+# build-seo (regex marcador->/body) o apagaria. Removemos o bloco aqui para
+# gerar o /form a partir de um index limpo; o build-seo reaplica o SEO de cabeca.
+def strip_seo_body(html: str) -> str:
+    return re.sub(r"<!-- nuna-seo-body -->.*?(?=</body>)", "", html, flags=re.S)
+
 # --- 2. widget do funil (CSS + HTML + JS) ------------------------------------
 FUNNEL = r"""
 <!-- ===================== FUNIL DE QUALIFICACAO (/form) ===================== -->
@@ -304,6 +313,7 @@ FUNNEL = r"""
 def main():
     html = SRC.read_text(encoding="utf-8")
     html = rewrite_assets(html)
+    html = strip_seo_body(html)
     funnel = (FUNNEL.replace("__PHONE__", WHATSAPP_PHONE)
                     .replace("__WEBHOOK__", WEBHOOK)
                     .replace("__LOGO__", load_logo()))
