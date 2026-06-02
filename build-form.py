@@ -79,11 +79,11 @@ FUNNEL = r"""
 .nf-sub{font-size:15.5px;color:var(--nf-muted);margin:0 0 26px;text-align:center;line-height:1.5}
 .nf-field{margin-bottom:17px;text-align:left}
 .nf-label{display:block;font-size:13px;font-weight:700;color:var(--nf-ink);margin:0 0 7px}
-.nf-input{width:100%;box-sizing:border-box;padding:15px 16px;font-family:inherit;font-size:16.5px;
- color:var(--nf-ink);background:#fff;border:1.5px solid var(--nf-line);border-radius:14px;outline:none;
- transition:border-color .18s,box-shadow .18s}
-.nf-input::placeholder{color:#BBB0B6}
-.nf-input:focus{border-color:var(--nf-plum);box-shadow:0 0 0 4px rgba(109,88,115,.16)}
+.nf-input{width:100%;box-sizing:border-box;padding:16px 19px;font-family:inherit;font-size:16.5px;
+ color:var(--nf-ink);background:#F6F1F5;border:1.5px solid transparent;border-radius:18px;outline:none;
+ transition:border-color .18s,box-shadow .18s,background .18s}
+.nf-input::placeholder{color:#B3A8B0}
+.nf-input:focus{background:#fff;border-color:var(--nf-plum);box-shadow:0 0 0 4px rgba(109,88,115,.14)}
 .nf-err{color:#C8443A;font-size:13.5px;margin:-4px 0 14px;display:none;text-align:left}
 .nf-btn{position:relative;width:100%;box-sizing:border-box;padding:17px;font-family:inherit;font-size:16.5px;
  font-weight:800;letter-spacing:.02em;color:#fff;border:none;border-radius:14px;cursor:pointer;
