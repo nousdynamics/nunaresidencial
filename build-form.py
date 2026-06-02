@@ -11,13 +11,20 @@ Re-rodar regenera /form a partir da landing atual.
 Spec: docs/superpowers/specs/2026-06-02-form-funil-design.md
 """
 import pathlib
+import re
 
 ROOT = pathlib.Path(__file__).parent
 SRC = ROOT / "site" / "index.html"
 OUT = ROOT / "site" / "form" / "index.html"
+LOGO = ROOT / "site" / "wp-content" / "uploads" / "2024" / "09" / "logo.svg"
 
 WHATSAPP_PHONE = "5514991363259"
 WEBHOOK = "https://hook.us2.make.com/h8dc6u1h184j14ovku6sbuv75enh8bqa"
+
+# --- logo: inline o SVG real, sem width/height fixos (CSS controla tamanho) --
+def load_logo() -> str:
+    svg = LOGO.read_text(encoding="utf-8").strip()
+    return re.sub(r'\s+(?:width|height)="[^"]*"', "", svg, count=2)
 
 # --- 1. reescreve paths relativos -> root-absolute ---------------------------
 def rewrite_assets(html: str) -> str:
@@ -37,34 +44,33 @@ FUNNEL = r"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Mulish:wght@400;500;600;700;800&display=swap');
 :root{
- --nf-cream:#FBF7EF;--nf-card:#FFFDF8;--nf-ink:#0B3A2C;--nf-green:#18A871;
- --nf-green-d:#0D7A52;--nf-amber:#E0A33B;--nf-muted:#6E7E73;--nf-line:#E7E0D2;
+ --nf-cream:#F7F0F4;--nf-card:#FFFCFE;--nf-ink:#3E3142;--nf-plum:#6D5873;
+ --nf-plum-d:#574860;--nf-mauve:#B89FBF;--nf-rose:#F7F0F5;--nf-muted:#86797F;--nf-line:#EAE2E7;
 }
 .nf-overlay{position:fixed;inset:0;z-index:999999;display:none;align-items:center;justify-content:center;padding:18px;
- background:radial-gradient(120% 120% at 50% 0%,rgba(13,122,82,.42),rgba(11,58,44,.74));
+ background:radial-gradient(120% 120% at 50% 0%,rgba(109,88,115,.45),rgba(50,40,54,.74));
  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
  font-family:'Mulish',system-ui,sans-serif}
 .nf-overlay.nf-open{display:flex;animation:nf-fade .3s ease}
 @keyframes nf-fade{from{opacity:0}to{opacity:1}}
 .nf-card{position:relative;width:100%;max-width:462px;max-height:94vh;overflow-y:auto;
  background:var(--nf-card);border-radius:28px;padding:36px 32px 32px;
- box-shadow:0 30px 80px -20px rgba(11,58,44,.55),0 1px 0 rgba(255,255,255,.7) inset;
+ box-shadow:0 30px 80px -20px rgba(50,40,54,.5),0 1px 0 rgba(255,255,255,.7) inset;
  animation:nf-rise .45s cubic-bezier(.16,1,.3,1)}
 @keyframes nf-rise{from{opacity:0;transform:translateY(26px) scale(.985)}to{opacity:1;transform:none}}
 .nf-card::before{content:"";position:absolute;inset:0;border-radius:28px;padding:1px;pointer-events:none;
- background:linear-gradient(180deg,rgba(224,163,59,.55),rgba(24,168,113,.22) 55%,transparent);
+ background:linear-gradient(180deg,rgba(184,159,191,.6),rgba(109,88,115,.22) 55%,transparent);
  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
  -webkit-mask-composite:xor;mask-composite:exclude}
 .nf-close{position:absolute;top:15px;right:15px;width:34px;height:34px;border-radius:50%;
  border:1px solid var(--nf-line);background:#fff;color:var(--nf-muted);font-size:17px;line-height:1;
  cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s}
 .nf-close:hover{background:var(--nf-ink);color:#fff;border-color:var(--nf-ink);transform:rotate(90deg)}
-.nf-brand{display:flex;align-items:center;justify-content:center;margin:2px 0 20px}
-.nf-wm{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:30px;letter-spacing:-.02em;
- line-height:1;color:var(--nf-ink)}
-.nf-wm i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--nf-amber);margin-left:3px}
+.nf-brand{display:flex;align-items:center;justify-content:center;margin:2px 0 22px}
+.nf-brand svg{height:30px;width:auto;display:block}
+.nf-brand svg path{fill:var(--nf-plum)}
 .nf-eyebrow{display:block;text-align:center;font-size:11px;font-weight:800;letter-spacing:.2em;
- text-transform:uppercase;color:var(--nf-amber);margin:0 0 9px}
+ text-transform:uppercase;color:var(--nf-plum);margin:0 0 9px}
 .nf-step{display:none}
 .nf-step.nf-active{display:block;animation:nf-step .4s ease}
 @keyframes nf-step{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
@@ -76,14 +82,14 @@ FUNNEL = r"""
 .nf-input{width:100%;box-sizing:border-box;padding:15px 16px;font-family:inherit;font-size:16.5px;
  color:var(--nf-ink);background:#fff;border:1.5px solid var(--nf-line);border-radius:14px;outline:none;
  transition:border-color .18s,box-shadow .18s}
-.nf-input::placeholder{color:#B7BEB6}
-.nf-input:focus{border-color:var(--nf-green);box-shadow:0 0 0 4px rgba(24,168,113,.14)}
+.nf-input::placeholder{color:#BBB0B6}
+.nf-input:focus{border-color:var(--nf-plum);box-shadow:0 0 0 4px rgba(109,88,115,.16)}
 .nf-err{color:#C8443A;font-size:13.5px;margin:-4px 0 14px;display:none;text-align:left}
 .nf-btn{position:relative;width:100%;box-sizing:border-box;padding:17px;font-family:inherit;font-size:16.5px;
  font-weight:800;letter-spacing:.02em;color:#fff;border:none;border-radius:14px;cursor:pointer;
- background:linear-gradient(135deg,var(--nf-green),var(--nf-green-d));
- box-shadow:0 12px 24px -8px rgba(13,122,82,.6);transition:transform .18s,box-shadow .18s}
-.nf-btn:hover{transform:translateY(-2px);box-shadow:0 18px 30px -8px rgba(13,122,82,.65)}
+ background:linear-gradient(135deg,var(--nf-plum),var(--nf-plum-d));
+ box-shadow:0 12px 24px -8px rgba(87,72,96,.55);transition:transform .18s,box-shadow .18s}
+.nf-btn:hover{transform:translateY(-2px);box-shadow:0 18px 30px -8px rgba(87,72,96,.6)}
 .nf-btn:active{transform:translateY(0)}
 .nf-arrow{display:inline-block;margin-left:8px;transition:transform .2s}
 .nf-btn:hover .nf-arrow{transform:translateX(4px)}
@@ -92,22 +98,22 @@ FUNNEL = r"""
  border:1.5px solid var(--nf-line);border-radius:16px;cursor:pointer;
  transition:border-color .18s,background .18s,transform .18s,box-shadow .18s}
 .nf-opt::after{content:"";position:absolute;right:19px;top:50%;width:9px;height:9px;
- border-right:2px solid var(--nf-green);border-top:2px solid var(--nf-green);
+ border-right:2px solid var(--nf-plum);border-top:2px solid var(--nf-plum);
  transform:translateY(-50%) rotate(45deg);transition:right .18s}
-.nf-opt:hover{border-color:var(--nf-green);background:#F4FBF7;transform:translateY(-2px);
- box-shadow:0 10px 22px -12px rgba(13,122,82,.5)}
+.nf-opt:hover{border-color:var(--nf-plum);background:var(--nf-rose);transform:translateY(-2px);
+ box-shadow:0 10px 22px -12px rgba(87,72,96,.45)}
 .nf-opt:hover::after{right:15px}
 .nf-opt small{display:block;font-weight:500;font-size:13px;color:var(--nf-muted);margin-top:3px}
 .nf-badge{width:74px;height:74px;margin:0 auto 18px;border-radius:50%;display:flex;align-items:center;
- justify-content:center;background:linear-gradient(135deg,rgba(24,168,113,.16),rgba(224,163,59,.2));
- color:var(--nf-green);animation:nf-pop .5s cubic-bezier(.18,1.4,.4,1)}
+ justify-content:center;background:linear-gradient(135deg,rgba(109,88,115,.16),rgba(184,159,191,.3));
+ color:var(--nf-plum);animation:nf-pop .5s cubic-bezier(.18,1.4,.4,1)}
 @keyframes nf-pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
 .nf-badge svg{width:34px;height:34px}
 .nf-count{font-size:14.5px;color:var(--nf-muted);text-align:center;margin:20px 0 0}
-.nf-count b{color:var(--nf-green);font-weight:800}
+.nf-count b{color:var(--nf-plum);font-weight:800}
 .nf-bar{height:5px;width:100%;background:var(--nf-line);border-radius:99px;overflow:hidden;margin-top:12px}
 .nf-bar i{display:block;height:100%;width:100%;border-radius:99px;
- background:linear-gradient(90deg,var(--nf-green),var(--nf-amber))}
+ background:linear-gradient(90deg,var(--nf-plum),var(--nf-mauve))}
 .nf-step[data-step="obrigado"].nf-active .nf-bar i{animation:nf-deplete 5s linear forwards}
 @keyframes nf-deplete{from{width:100%}to{width:0}}
 .nf-link{display:block;text-align:center;margin-top:16px;font-family:inherit;font-size:14px;color:var(--nf-muted);
@@ -118,7 +124,7 @@ FUNNEL = r"""
 <div class="nf-overlay" id="nf-overlay" role="dialog" aria-modal="true">
  <div class="nf-card">
   <button class="nf-close" id="nf-close" aria-label="Fechar">&times;</button>
-  <div class="nf-brand"><span class="nf-wm">nuna<i></i></span></div>
+  <div class="nf-brand">__LOGO__</div>
 
   <!-- Step: Lead -->
   <div class="nf-step nf-active" data-step="lead">
@@ -170,11 +176,11 @@ FUNNEL = r"""
 
   <!-- Step: Emprego (beco sem saida) -->
   <div class="nf-step" data-step="emprego">
-   <div class="nf-badge" style="background:linear-gradient(135deg,rgba(110,126,115,.16),rgba(224,163,59,.2));color:var(--nf-amber)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div>
+   <div class="nf-badge" style="background:linear-gradient(135deg,rgba(134,121,127,.18),rgba(184,159,191,.28));color:var(--nf-muted)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div>
    <p class="nf-h">Obrigado pelo interesse!</p>
    <p class="nf-sub">No momento nao recebemos curriculos por este canal.
     Agradecemos o contato e desejamos sucesso.</p>
-   <button class="nf-btn" id="nf-emp-close" style="background:linear-gradient(135deg,#8A958C,#6E7E73);box-shadow:0 12px 24px -8px rgba(110,126,115,.5)">Fechar</button>
+   <button class="nf-btn" id="nf-emp-close" style="background:linear-gradient(135deg,#9A8F9E,#7D7280);box-shadow:0 12px 24px -8px rgba(125,114,128,.45)">Fechar</button>
   </div>
 
  </div>
@@ -298,7 +304,9 @@ FUNNEL = r"""
 def main():
     html = SRC.read_text(encoding="utf-8")
     html = rewrite_assets(html)
-    funnel = FUNNEL.replace("__PHONE__", WHATSAPP_PHONE).replace("__WEBHOOK__", WEBHOOK)
+    funnel = (FUNNEL.replace("__PHONE__", WHATSAPP_PHONE)
+                    .replace("__WEBHOOK__", WEBHOOK)
+                    .replace("__LOGO__", load_logo()))
     if "</body>" in html:
         html = html.replace("</body>", funnel + "\n</body>", 1)
     else:
