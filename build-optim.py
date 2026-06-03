@@ -15,6 +15,7 @@ Idempotente: re-rodar nao reconverte (PNGs ja viraram WebP).
 from __future__ import annotations
 
 import pathlib
+import re
 import subprocess
 
 from PIL import Image
@@ -28,6 +29,26 @@ MAX_W = 1600
 SIZE_THRESHOLD = 120 * 1024  # so converte acima de 120 KB
 VIDEO_CRF = "28"
 VIDEO_MAX_H = "720"
+
+# Pesos de fonte realmente usados no CSS (verificado: 400/500/600/700, sem italico)
+FONT_WEIGHTS = "400,500,600,700"
+# Familias Google Fonts carregadas mas nao referenciadas em nenhum seletor -> remover
+UNUSED_GF = ["inter"]
+# Diretorio de webfonts do Font Awesome (so .woff2 e usado por browser moderno)
+FA_FONTS = (SITE / "wp-content" / "plugins" / "elementor"
+            / "assets" / "lib" / "font-awesome" / "webfonts")
+
+# CSS decorativo / icones / widgets below-the-fold -> carregar sem bloquear o
+# render (media=print + swap no onload, com <noscript> de fallback).
+# NAO incluir CSS estrutural/above-fold (post-14, frontend, theme, reset,
+# nav-menu, heading, image, swiper) para evitar FOUC.
+DEFER_CSS = [
+    "font-awesome-5-all", "font-awesome-4-shim",
+    "widget-image-carousel", "widget-call-to-action", "e-transitions",
+    "widget-nested-carousel", "widget-spacer", "widget-video",
+    "widget-social-icons", "e-apple-webkit", "widget-icon-list",
+    "widget-divider",
+]
 
 # arquivos a preservar como estao
 KEEP = {"favicon.png"}
@@ -94,6 +115,73 @@ def rewrite_html(mapping: dict[str, str]) -> None:
             print(f"  refs atualizadas em {hf.relative_to(SITE)}")
 
 
+def optimize_head() -> None:
+    """Enxuga Google Fonts no <head>: remove familias nao usadas e reduz os
+    pesos das restantes para apenas os realmente aplicados no CSS.
+    Idempotente: re-rodar nao muda nada (regex ja convergiu)."""
+    # remove a familia inteira (linha <link ...elementor-gf-<fam>-css... />)
+    drop_links = [
+        re.compile(rf"<link[^>]*elementor-gf-{fam}-css[^>]*/?>\s*", re.I)
+        for fam in UNUSED_GF
+    ]
+    # reduz o trecho de pesos depois do nome da familia: family=Nome:<pesos>
+    trim_weights = re.compile(
+        r"(fonts\.googleapis\.com/css\?family=[^:'\"&]+):[^'\"&]*"
+    )
+    for hf in HTML_FILES:
+        if not hf.exists():
+            continue
+        txt = hf.read_text(encoding="utf-8")
+        orig = txt
+        for rx in drop_links:
+            txt = rx.sub("", txt)
+        txt = trim_weights.sub(rf"\1:{FONT_WEIGHTS}", txt)
+        if txt != orig:
+            hf.write_text(txt, encoding="utf-8")
+            print(f"  head enxugado em {hf.relative_to(SITE)}")
+
+
+def defer_css() -> None:
+    """Torna nao-bloqueante o CSS decorativo (DEFER_CSS) via media=print +
+    swap no onload, com <noscript> de fallback. Idempotente (pula tags que
+    ja tem onload)."""
+    for hf in HTML_FILES:
+        if not hf.exists():
+            continue
+        txt = hf.read_text(encoding="utf-8")
+        orig = txt
+        for css_id in DEFER_CSS:
+            rx = re.compile(rf"<link\b[^>]*\bid='{re.escape(css_id)}-css'[^>]*>")
+            m = rx.search(txt)
+            if not m:
+                continue
+            tag = m.group(0)
+            if "onload=" in tag or "media='all'" not in tag:
+                continue  # ja deferido ou formato inesperado
+            deferred = tag.replace(
+                "media='all'", "media='print' onload=\"this.media='all'\""
+            )
+            replacement = f"{deferred}<noscript>{tag}</noscript>"
+            txt = txt.replace(tag, replacement, 1)
+        if txt != orig:
+            hf.write_text(txt, encoding="utf-8")
+            print(f"  CSS deferido em {hf.relative_to(SITE)}")
+
+
+def remove_dead_fonts() -> None:
+    """Apaga .eot/.ttf do Font Awesome (so IE/legado; browser usa .woff2)."""
+    if not FA_FONTS.exists():
+        return
+    saved = 0
+    for path in sorted(FA_FONTS.iterdir()):
+        if path.suffix.lower() in (".eot", ".ttf"):
+            sz = path.stat().st_size
+            path.unlink()
+            saved += sz
+            print(f"  removido {path.name} ({human(sz)})")
+    print(f"Fontes FA legado: economia {human(saved)}")
+
+
 def reencode_videos() -> None:
     saved = 0
     for path in sorted(UPLOADS.rglob("*.mp4")):
@@ -137,6 +225,12 @@ def main() -> None:
     mapping = optimize_images()
     print("== refs HTML ==")
     rewrite_html(mapping)
+    print("== head (google fonts) ==")
+    optimize_head()
+    print("== css defer ==")
+    defer_css()
+    print("== fontes legado ==")
+    remove_dead_fonts()
     print("== videos ==")
     reencode_videos()
     print("== lixo ==")

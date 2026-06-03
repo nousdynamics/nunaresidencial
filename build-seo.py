@@ -146,8 +146,9 @@ def head_block(path: str, *, index: bool) -> str:
 
     lines = [
         SEO_MARKER,
-        '<link rel="preconnect" href="https://fonts.googleapis.com">',
-        '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
+        '<link rel="preload" as="font" type="font/woff2" crossorigin href="/wp-content/fonts/roboto/roboto-latin.woff2">',
+        '<link rel="preload" as="font" type="font/woff2" crossorigin href="/wp-content/fonts/roboto-slab/roboto-slab-latin.woff2">',
+        '<link rel="stylesheet" href="/wp-content/fonts/fonts.css">',
         f'<meta name="description" content="{meta["description"]}">',
         f'<meta name="robots" content="{robots}">',
         f'<link rel="canonical" href="{url}">',
@@ -309,6 +310,10 @@ def strip_old_seo(html: str) -> str:
     html = re.sub(r"<!-- nuna-seo-head -->.*?(?=<style|<link|<script|\n\t<style|\n<link|\n<script|\n\t<meta name=\"viewport\")", "", html, flags=re.S)
     html = re.sub(r"<!-- nuna-seo-body -->.*?(?=</body>)", "", html, flags=re.S, count=1)
     html = re.sub(r'<link rel="preconnect" href="https://fonts\.[^>]+>\n?', "", html)
+    # google fonts -> self-host: remove links de familia GF, fonts.css e preload de fonte
+    html = re.sub(r"<link[^>]*elementor-gf-[^>]*>\s*", "", html)
+    html = re.sub(r'<link rel="stylesheet" href="/wp-content/fonts/fonts\.css">\n?', "", html)
+    html = re.sub(r'<link rel="preload"[^>]*\.woff2"[^>]*>\n?', "", html)
     html = re.sub(r'<meta name=[\'"]description[^>]+>\n?', "", html)
     html = re.sub(r'<meta name=[\'"]robots[^>]+>\n?', "", html)
     html = re.sub(r'<link rel=[\'"]canonical[^>]+>\n?', "", html)
@@ -459,8 +464,7 @@ def legal_controller_intro() -> str:
     )
 
 
-LEGAL_STYLES = """@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Mulish:wght@400;500;600;700&display=swap');
-:root{--plum:#6D5873;--plum-d:#574860;--mauve:#B89FBF;--ink:#3E3142;--muted:#6E6470;--cream:#F7F0F4;--line:#E7DEE6}
+LEGAL_STYLES = """:root{--plum:#6D5873;--plum-d:#574860;--mauve:#B89FBF;--ink:#3E3142;--muted:#6E6470;--cream:#F7F0F4;--line:#E7DEE6}
 *{box-sizing:border-box}
 body{margin:0;background:var(--cream);color:var(--ink);font-family:'Mulish',system-ui,sans-serif;line-height:1.65;font-size:16.5px}
 .lp-head{background:linear-gradient(135deg,var(--plum),var(--plum-d));padding:26px 20px;text-align:center}
@@ -501,6 +505,9 @@ def legal_head(path: str) -> str:
 <meta name="twitter:description" content="{meta['description']}">
 <meta name="twitter:image" content="{OG_IMAGE}">
 <link rel="icon" href="/wp-content/uploads/2024/09/favicon.png">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="/wp-content/fonts/fraunces/fraunces-latin.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="/wp-content/fonts/mulish/mulish-latin.woff2">
+<link rel="stylesheet" href="/wp-content/fonts/fonts.css">
 <style>
 {LEGAL_STYLES}
 </style>"""

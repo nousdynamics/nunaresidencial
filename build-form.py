@@ -51,7 +51,6 @@ def strip_seo_body(html: str) -> str:
 FUNNEL = r"""
 <!-- ===================== FUNIL DE QUALIFICACAO (/form) ===================== -->
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Mulish:wght@400;500;600;700;800&display=swap');
 :root{
  --nf-cream:#F7F0F4;--nf-card:#FFFCFE;--nf-ink:#3E3142;--nf-plum:#6D5873;
  --nf-plum-d:#574860;--nf-mauve:#B89FBF;--nf-rose:#F7F0F5;--nf-muted:#86797F;--nf-line:#EAE2E7;
