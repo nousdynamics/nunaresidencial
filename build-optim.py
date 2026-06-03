@@ -52,8 +52,11 @@ DEFER_CSS = [
 
 # arquivos a preservar como estao
 KEEP = {"favicon.png"}
-# nao referenciados (lixo) -> apagar
-DEAD = ["2024/10/not.png", "2024/10/bg-mobile.png"]
+# nao referenciados (lixo) -> apagar.
+# NOTA: not.png e bg-mobile.png NAO sao lixo -- sao backgrounds de parallax
+# (motion-effects, elemento c63b2a4 em post-14.css). Removidos daqui; passam
+# pelo pipeline normal de WebP como qualquer imagem.
+DEAD: list[str] = []
 
 HTML_FILES = [
     SITE / "index.html",
@@ -113,6 +116,40 @@ def rewrite_html(mapping: dict[str, str]) -> None:
         if txt != orig:
             hf.write_text(txt, encoding="utf-8")
             print(f"  refs atualizadas em {hf.relative_to(SITE)}")
+
+
+def fix_css_image_refs() -> None:
+    """Repointa url(...png|jpg) -> .webp nos CSS quando o raster sumiu mas o
+    .webp irmao existe. Self-healing e idempotente: conserta refs em CSS que o
+    rewrite_html (so HTML) nao cobre, inclusive em estado ja commitado.
+    Refs cujo raster foi removido como lixo (sem .webp) sao reportadas."""
+    rx = re.compile(r"url\(\s*(['\"]?)([^)'\"]+\.(?:png|jpe?g))\1\s*\)", re.I)
+    fixed = 0
+    dangling: list[str] = []
+    for css in sorted(SITE.rglob("*.css")):
+        txt = css.read_text(encoding="utf-8", errors="ignore")
+
+        def repl(m: re.Match) -> str:
+            nonlocal fixed
+            quote, ref = m.group(1), m.group(2)
+            target = (css.parent / ref).resolve()
+            if target.exists():
+                return m.group(0)  # raster ainda presente, nao mexe
+            webp = target.with_suffix(".webp")
+            if webp.exists():
+                fixed += 1
+                new_ref = re.sub(r"\.(?:png|jpe?g)$", ".webp", ref, flags=re.I)
+                return f"url({quote}{new_ref}{quote})"
+            dangling.append(f"{css.relative_to(SITE)} -> {ref}")
+            return m.group(0)
+
+        new = rx.sub(repl, txt)
+        if new != txt:
+            css.write_text(new, encoding="utf-8")
+            print(f"  refs CSS atualizadas em {css.relative_to(SITE)}")
+    print(f"CSS: {fixed} ref(s) png/jpg -> webp")
+    for d in dangling:
+        print(f"  AVISO ref morta (sem webp): {d}")
 
 
 def optimize_head() -> None:
@@ -225,6 +262,8 @@ def main() -> None:
     mapping = optimize_images()
     print("== refs HTML ==")
     rewrite_html(mapping)
+    print("== refs CSS ==")
+    fix_css_image_refs()
     print("== head (google fonts) ==")
     optimize_head()
     print("== css defer ==")
