@@ -146,6 +146,8 @@ def head_block(path: str, *, index: bool) -> str:
 
     lines = [
         SEO_MARKER,
+        '<link rel="preconnect" href="https://fonts.googleapis.com">',
+        '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
         f'<meta name="description" content="{meta["description"]}">',
         f'<meta name="robots" content="{robots}">',
         f'<link rel="canonical" href="{url}">',
@@ -306,6 +308,7 @@ def strip_old_seo(html: str) -> str:
     html = re.sub(r"<!-- nuna-seo-head -->.*?<!-- /nuna-seo-head -->\n?", "", html, flags=re.S)
     html = re.sub(r"<!-- nuna-seo-head -->.*?(?=<style|<link|<script|\n\t<style|\n<link|\n<script|\n\t<meta name=\"viewport\")", "", html, flags=re.S)
     html = re.sub(r"<!-- nuna-seo-body -->.*?(?=</body>)", "", html, flags=re.S, count=1)
+    html = re.sub(r'<link rel="preconnect" href="https://fonts\.[^>]+>\n?', "", html)
     html = re.sub(r'<meta name=[\'"]description[^>]+>\n?', "", html)
     html = re.sub(r'<meta name=[\'"]robots[^>]+>\n?', "", html)
     html = re.sub(r'<link rel=[\'"]canonical[^>]+>\n?', "", html)
