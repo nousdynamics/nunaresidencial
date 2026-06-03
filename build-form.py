@@ -214,8 +214,8 @@ FUNNEL = r"""
   show('lead');
  }
 
- // sequestra todos os CTAs de WhatsApp
- document.querySelectorAll('a[href*="whatsapp"]').forEach(function(a){
+ // sequestra todos os CTAs de WhatsApp (api.whatsapp.com e wa.me, pos build-seo)
+ document.querySelectorAll('a[href*="whatsapp"],a[href*="wa.me"]').forEach(function(a){
   a.addEventListener('click',function(e){ e.preventDefault(); open(); });
  });
  document.getElementById('nf-close').addEventListener('click',close);
