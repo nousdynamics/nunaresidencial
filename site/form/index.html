@@ -15,6 +15,8 @@
 
 
 
+
+
 <!-- nuna-seo-head -->
 <meta name="description" content="Qualifique seu interesse e fale com a equipe da Nuna Residencial Sênior em Itapuí. Moradia permanente, day use, temporada e centro dia.">
 <meta name="robots" content="noindex,follow">
@@ -1287,10 +1289,14 @@ var ElementorProFrontendConfig = {"ajaxurl":"https:\/\/nunaresidencial.com.br\/w
 .nf-field{margin-bottom:17px;text-align:left}
 .nf-label{display:block;font-size:13px;font-weight:700;color:var(--nf-ink);margin:0 0 7px}
 .nf-input{width:100%;box-sizing:border-box;padding:16px 19px;font-family:inherit;font-size:16.5px;
- color:var(--nf-ink);background:#F6F1F5;border:1.5px solid transparent;border-radius:18px;outline:none;
- transition:border-color .18s,box-shadow .18s,background .18s}
+ color:var(--nf-ink);background:#F6F1F5;border:1.5px solid transparent!important;border-radius:18px!important;
+ outline:none;transition:border-color .18s,box-shadow .18s,background .18s}
 .nf-input::placeholder{color:#B3A8B0}
-.nf-input:focus{background:#fff;border-color:var(--nf-plum);box-shadow:0 0 0 4px rgba(109,88,115,.14)}
+.nf-input:focus{background:#fff;border-color:var(--nf-plum)!important;box-shadow:0 0 0 4px rgba(109,88,115,.14)}
+.nf-phone{display:flex;gap:8px;align-items:stretch}
+.nf-phone .nf-input{flex:1;min-width:0}
+.nf-ddi{display:flex;align-items:center;padding:0 16px;font-family:inherit;font-weight:800;font-size:16px;
+ color:var(--nf-plum);background:#F6F1F5;border-radius:18px;white-space:nowrap}
 .nf-err{color:#C8443A;font-size:13.5px;margin:-4px 0 14px;display:none;text-align:left}
 .nf-btn{position:relative;width:100%;box-sizing:border-box;padding:17px;font-family:inherit;font-size:16.5px;
  font-weight:800;letter-spacing:.02em;color:#fff;border:none;border-radius:14px;cursor:pointer;
@@ -1344,9 +1350,12 @@ var ElementorProFrontendConfig = {"ajaxurl":"https:\/\/nunaresidencial.com.br\/w
    </div>
    <div class="nf-field">
     <label class="nf-label" for="nf-whats">Seu WhatsApp</label>
-    <input class="nf-input" id="nf-whats" type="tel" placeholder="(14) 99999-9999" autocomplete="tel">
+    <div class="nf-phone">
+     <span class="nf-ddi">+55</span>
+     <input class="nf-input" id="nf-whats" type="tel" inputmode="numeric" placeholder="(14) 99999-9999" maxlength="15" autocomplete="tel">
+    </div>
    </div>
-   <div class="nf-err" id="nf-err">Preencha o nome e um WhatsApp valido com DDD.</div>
+   <div class="nf-err" id="nf-err">Preencha o nome e um WhatsApp completo: DDD + 9 digitos.</div>
    <button class="nf-btn" id="nf-lead-go">Continuar<span class="nf-arrow">&rarr;</span></button>
   </div>
 
@@ -1419,16 +1428,27 @@ var ElementorProFrontendConfig = {"ajaxurl":"https:\/\/nunaresidencial.com.br\/w
  document.getElementById('nf-close').addEventListener('click',close);
  ov.addEventListener('click',function(e){ if(e.target===ov) close(); });
 
+ // mascara WhatsApp BR: (XX) XXXXX-XXXX (DDD + 9 digitos)
+ var whatsEl=document.getElementById('nf-whats');
+ whatsEl.addEventListener('input',function(){
+  var d=whatsEl.value.replace(/\D/g,'').slice(0,11),out='';
+  if(d.length>0) out='('+d.slice(0,2);
+  if(d.length>=2) out+=') ';
+  if(d.length>2) out+=d.slice(2,7);
+  if(d.length>7) out+='-'+d.slice(7,11);
+  whatsEl.value=out;
+ });
+
  // Step Lead -> Qualificacao
  document.getElementById('nf-lead-go').addEventListener('click',function(){
   var nome=document.getElementById('nf-nome').value.trim();
-  var whats=document.getElementById('nf-whats').value.trim();
+  var whats=whatsEl.value.trim();
   var digits=whats.replace(/\D/g,'');
-  if(nome.length<2 || digits.length<10){
+  if(nome.length<2 || digits.length<11){
    document.getElementById('nf-err').style.display='block'; return;
   }
   document.getElementById('nf-err').style.display='none';
-  lead.nome=nome; lead.whatsapp=whats;
+  lead.nome=nome; lead.whatsapp='+55 '+whats;
   show('qualificacao');
  });
 
