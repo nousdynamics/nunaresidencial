@@ -374,16 +374,6 @@ def patch_landing(html: str) -> str:
     ):
         html = html.replace(old, new)
 
-    # answer capsule visivel no hero (GEO/AEO)
-    if "nuna-resposta-principal" not in html:
-        html = html.replace(
-            '<h2 class="elementor-heading-title elementor-size-default">Acolhimento, conforto e excelência em cada detalhe para a melhor idade</h2>\t\t\t\t</div>',
-            '<h2 class="elementor-heading-title elementor-size-default">Acolhimento, conforto e excelência em cada detalhe para a melhor idade</h2>\t\t\t\t</div>\n\t\t\t\t<div class="elementor-widget-container nuna-capsule-wrap">\n\t\t\t\t\t'
-            + ANSWER_CAPSULE
-            + "\n\t\t\t\t</div>",
-            1,
-        )
-
     # logo alt (header + footer)
     html = html.replace(
         'data-src="wp-content/uploads/2024/09/logo.svg" class="attachment-full size-full wp-image-1375 lazy" alt=""',
