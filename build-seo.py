@@ -330,12 +330,87 @@ ANSWER_CAPSULE = """<p class="nuna-answer-capsule" id="nuna-resposta-principal">
   e seis refeições diárias. Fundado em 2017 por enfermeiras especializadas em geriatria.
 </p>"""
 
+# CSS dos CTAs padronizados — reusado em landing e /form
+CTA_CSS = """/* === CTAs padronizados (todas as secoes) === */
+/* PRIMARY = Agendar: plum solido + texto branco + icone WhatsApp (secoes claras) */
+a.elementor-button.nuna-ag{display:inline-flex!important;align-items:center;justify-content:center;gap:10px;background-color:#6D5873!important;color:#fff!important;fill:#fff!important;border-color:#6D5873!important;border-width:0!important;border-radius:79px!important;box-shadow:0 10px 26px -8px rgba(109,88,115,.5);transition:transform .2s,box-shadow .2s,background-color .2s}
+a.elementor-button.nuna-ag:hover,a.elementor-button.nuna-ag:focus{background-color:#574860!important;color:#fff!important;fill:#fff!important;border-color:#574860!important;transform:translateY(-2px);box-shadow:0 16px 34px -10px rgba(87,72,96,.55)}
+a.elementor-button.nuna-ag svg{fill:#fff!important}
+.nuna-wa-ico{width:22px;height:22px;display:block;flex:0 0 auto}
+/* MINIMAL = Saiba mais: transparente, texto plum, sem borda */
+a.elementor-button.nuna-sb{background-color:transparent!important;color:#6D5873!important;fill:#6D5873!important;border-width:0!important;box-shadow:none!important;padding:16px 18px!important}
+a.elementor-button.nuna-sb:hover,a.elementor-button.nuna-sb:focus{background-color:transparent!important;color:#574860!important;text-decoration:underline;text-underline-offset:4px}
+/* HERO (fundo plum escuro) — inverte tons p/ contraste */
+.elementor-element-6165113 a.nuna-ag{background-color:#EEEDDB!important;color:#6D5873!important;fill:#6D5873!important;border-color:#EEEDDB!important;box-shadow:0 12px 30px -8px rgba(0,0,0,.35)}
+.elementor-element-6165113 a.nuna-ag:hover{background-color:#fff!important;color:#574860!important;fill:#574860!important;border-color:#fff!important}
+.elementor-element-6165113 a.nuna-ag svg{fill:#6D5873!important}
+.elementor-element-6165113 a.nuna-ag:hover svg{fill:#574860!important}
+.elementor-element-6372a10 a.nuna-sb{color:#F7F4F6!important;fill:#F7F4F6!important}
+.elementor-element-6372a10 a.nuna-sb:hover{color:#fff!important}
+/* Ordem invertida nos pares (Agendar antes de Saiba) */
+.elementor-element-6165113{order:-1}.elementor-element-6372a10{order:0}
+.elementor-element-e6ee868{order:-1!important}.elementor-element-b73bb8d{order:0!important}"""
+
 SEO_STYLES = """<!-- nuna-seo-body -->
 <style>
 .nuna-answer-capsule{max-width:720px;margin:0 auto 1.25rem;padding:0 1rem;font-size:1rem;line-height:1.6;color:#4a4350;text-align:center}
 .nuna-answer-capsule strong{display:block;font-family:inherit;color:#574860;margin-bottom:.35rem}
 *:focus-visible{outline:2px solid #6D5873;outline-offset:2px}
+""" + CTA_CSS + """
 </style>"""
+
+# Bloco de estilo dos CTAs para paginas sem SEO_STYLES (ex: /form)
+CTA_STYLE_BLOCK = "<!-- nuna-cta-css -->\n<style>\n" + CTA_CSS + "\n</style>"
+
+# Glifo WhatsApp p/ o botao Agendar (hero). currentColor segue a cor do botao.
+WA_ICO = (
+    '<svg class="nuna-wa-ico" viewBox="0 0 32 32" fill="currentColor" '
+    'aria-hidden="true" focusable="false"><path d="M16.004 0h-.008C7.174 0 .002 7.174'
+    '.002 16c0 3.5 1.128 6.745 3.046 9.38L1.05 31.5l6.32-2.02A15.9 15.9 0 0 0 16.004 32'
+    'C24.83 32 32 24.826 32 16S24.83 0 16.004 0zm9.31 22.6c-.386 1.09-1.92 1.994-3.143 '
+    '2.258-.836.178-1.928.32-5.604-1.204-4.704-1.95-7.733-6.73-7.97-7.04-.226-.31-1.9-2.53'
+    '-1.9-4.826 0-2.296 1.166-3.424 1.636-3.904.386-.396.84-.576 1.32-.576.155 0 .295.008'
+    '.42.014.376.016.566.038.814.632.31.744 1.064 2.6 1.154 2.79.092.19.184.448.06.7-.116'
+    '.26-.218.382-.41.61-.192.228-.374.404-.566.65-.176.214-.374.444-.152.834.222.382.99 '
+    '1.632 2.126 2.644 1.464 1.304 2.668 1.71 3.098 1.892.32.134.7.102.934-.146.296-.318'
+    '.66-.846 1.03-1.366.262-.372.594-.418.94-.286.354.124 2.24 1.056 2.626 1.248.386.192'
+    '.642.286.736.446.092.16.092.92-.294 2.01z"/></svg>'
+)
+
+
+_ARROW_RE = re.compile(r'<svg xmlns="http://www\.w3\.org/2000/svg" width="17".*?</svg>', re.S)
+
+
+def _add_class(open_tag: str, cls: str) -> str:
+    """Adiciona uma classe ao atributo class de uma tag <a ...>. Idempotente."""
+    if cls in open_tag:
+        return open_tag
+    return re.sub(r'class="([^"]*)"', lambda m: f'class="{m.group(1)} {cls}"', open_tag, count=1)
+
+
+def restyle_ctas(html: str) -> str:
+    """Padroniza todos os CTAs do site (todas as secoes):
+    - Agendar: classe `nuna-ag` + icone WhatsApp (troca a seta ou insere se faltar).
+    - Saiba mais: classe `nuna-sb` (estilo minimalista).
+    Estilo/ordem/contraste tratados via CSS em SEO_STYLES. Idempotente."""
+
+    def per_anchor(m: re.Match) -> str:
+        blk = m.group(0)
+        gt = blk.find(">") + 1
+        open_tag, inner = blk[:gt], blk[gt:-4]  # -4 = </a>
+        if "Agendar uma visita" in blk:
+            open_tag = _add_class(open_tag, "nuna-ag")
+            if "nuna-wa-ico" not in inner:
+                if _ARROW_RE.search(inner):
+                    inner = _ARROW_RE.sub(WA_ICO, inner, count=1)
+                else:  # botao sem icone (ex: widget call-to-action) -> insere
+                    inner = WA_ICO + inner
+            return open_tag + inner + "</a>"
+        if "Saiba mais" in blk:
+            return _add_class(open_tag, "nuna-sb") + inner + "</a>"
+        return blk
+
+    return re.sub(r"<a\b[^>]*elementor-button[^>]*>.*?</a>", per_anchor, html, flags=re.S)
 
 
 def strip_old_seo(html: str) -> str:
@@ -427,6 +502,7 @@ def patch_landing(html: str) -> str:
 
     html = patch_image_alts(html)
     html = patch_social_links(html)
+    html = restyle_ctas(html)
     html = html.replace("© 2025 -", "© 2026 —")
 
     if BODY_MARKER not in html:
@@ -451,6 +527,9 @@ def patch_form(html: str) -> str:
         html,
     )
     html = html.replace('href="index.html"', 'href="/"')
+    html = restyle_ctas(html)
+    if "<!-- nuna-cta-css -->" not in html:
+        html = html.replace("</body>", CTA_STYLE_BLOCK + "\n</body>", 1)
     return html
 
 
