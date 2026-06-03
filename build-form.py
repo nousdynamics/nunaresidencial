@@ -80,6 +80,7 @@ FUNNEL = r"""
 .nf-brand svg path{fill:var(--nf-plum)}
 .nf-eyebrow{display:block;text-align:center;font-size:11px;font-weight:800;letter-spacing:.2em;
  text-transform:uppercase;color:var(--nf-plum);margin:0 0 9px}
+.nf-card *{text-wrap:balance}
 .nf-step{display:none}
 .nf-step.nf-active{display:block;animation:nf-step .4s ease}
 @keyframes nf-step{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
