@@ -130,6 +130,52 @@ WHATSAPP_URL = (
 SEO_MARKER = "<!-- nuna-seo-head -->"
 BODY_MARKER = "<!-- nuna-seo-body -->"
 
+GTM_ID = "GTM-MZL2GXP9"
+GTM_HEAD = f"""<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){{w[l]=w[l]||[];w[l].push({{'gtm.start':
+new Date().getTime(),event:'gtm.js'}});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+}})(window,document,'script','dataLayer','{GTM_ID}');</script>
+<!-- End Google Tag Manager -->"""
+GTM_BODY = f"""<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id={GTM_ID}"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->"""
+
+
+def inject_gtm(html: str) -> str:
+    """Insere GTM no topo do <head> e logo apos <body>. Idempotente."""
+    html = re.sub(
+        r"<!-- Google Tag Manager -->.*?<!-- End Google Tag Manager -->\n?",
+        "",
+        html,
+        flags=re.S,
+    )
+    html = re.sub(
+        r"<!-- Google Tag Manager \(noscript\) -->.*?<!-- End Google Tag Manager \(noscript\) -->\n?",
+        "",
+        html,
+        flags=re.S,
+    )
+    if "googletagmanager.com/gtm.js" not in html:
+        html = re.sub(
+            r"<head(\s[^>]*)?>",
+            lambda m: m.group(0) + "\n" + GTM_HEAD,
+            html,
+            count=1,
+            flags=re.I,
+        )
+    if "googletagmanager.com/ns.html" not in html:
+        html = re.sub(
+            r"<body(\s[^>]*)?>",
+            lambda m: m.group(0) + "\n" + GTM_BODY,
+            html,
+            count=1,
+            flags=re.I,
+        )
+    return html
+
 
 def wa_url() -> str:
     from urllib.parse import quote
@@ -508,7 +554,7 @@ def patch_landing(html: str) -> str:
     if BODY_MARKER not in html:
         html = html.replace("</body>", SEO_STYLES + "\n" + wa_float() + "\n</body>")
 
-    return html
+    return inject_gtm(html)
 
 
 def patch_form(html: str) -> str:
@@ -530,7 +576,7 @@ def patch_form(html: str) -> str:
     html = restyle_ctas(html)
     if "<!-- nuna-cta-css -->" not in html:
         html = html.replace("</body>", CTA_STYLE_BLOCK + "\n</body>", 1)
-    return html
+    return inject_gtm(html)
 
 
 def patch_image_alts(html: str) -> str:
@@ -702,7 +748,9 @@ def write_politica_privacidade() -> None:
 </body>
 </html>
 """
-    (SITE / "politica-de-privacidade" / "index.html").write_text(html, encoding="utf-8")
+    (SITE / "politica-de-privacidade" / "index.html").write_text(
+        inject_gtm(html), encoding="utf-8"
+    )
 
 
 def write_termos_uso() -> None:
@@ -774,7 +822,7 @@ def write_termos_uso() -> None:
 </body>
 </html>
 """
-    (SITE / "termos-de-uso" / "index.html").write_text(html, encoding="utf-8")
+    (SITE / "termos-de-uso" / "index.html").write_text(inject_gtm(html), encoding="utf-8")
 
 
 def generate_og_image() -> None:
