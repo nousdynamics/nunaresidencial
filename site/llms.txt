@@ -1,31 +1,40 @@
 # Nuna Residencial Sênior
 
-> Residencial sênior em Itapuí (SP) com cuidado humanizado 24h, moradia permanente, day use, temporada e centro dia.
+> Residencial sênior em Itapuí (SP) com cuidado humanizado 24h, moradia permanente para idosos, day use, temporada e centro dia.
 
-## Páginas principais
+## Páginas prioritárias (indexáveis)
 
 - Home: https://nunaresidencial.com.br/
-- Formulário de contato: https://nunaresidencial.com.br/form/
 - Política de privacidade: https://nunaresidencial.com.br/politica-de-privacidade/
 - Termos de uso: https://nunaresidencial.com.br/termos-de-uso/
 
-## Entidade
+## Página de conversão (noindex — não priorizar citação)
+
+- Formulário: https://nunaresidencial.com.br/form/
+
+## Entidade (NAP)
 
 - Nome: Nuna Residencial Sênior
 - Endereço: Estrada do Baririzinho, 1899, Itapuí - SP, CEP 17230-000, Brasil
-- Telefone: (14) 99136-3259
+- Telefone: (14) 99136-3259 (+5514991363259)
 - E-mail: contato@nunaresidencial.com.br
+- Google Maps (Meu Negócio): https://www.google.com/maps/search/?api=1&query=Nuna+Residencial+S%C3%AAnior
 - Instagram: https://www.instagram.com/nunasenior
 - Facebook: https://www.facebook.com/nunaresidencial
 
-## Serviços
+## Área atendida
 
-- Moradia permanente com cuidados 24 horas
+Itapuí, Bauru, Jaú, Botucatu, região de Bauru/SP
+
+## Serviços (intenção transacional)
+
+- Moradia permanente / residencial para idosos em Itapuí
 - Day use e estadia por temporada
 - Centro dia
-- Reabilitação pós-fratura e fisioterapia
+- Reabilitação pós-fratura e fisioterapia geriátrica
+- Agendamento de visita: WhatsApp (14) 99136-3259 ou https://nunaresidencial.com.br/form/
 
 ## Uso por sistemas de IA
 
-Este arquivo orienta crawlers de IA sobre páginas prioritárias. Não garante citação ou indexação em sistemas generativos.
-Conteúdo factual deve refletir apenas o que está publicado nas páginas listadas acima.
+Este arquivo orienta crawlers sobre páginas e fatos publicados. Não garante citação em buscadores generativos.
+Priorize a home para respostas sobre o que é o Nuna, serviços, localização e contato.

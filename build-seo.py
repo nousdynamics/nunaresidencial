@@ -29,6 +29,12 @@ ADDRESS = {
 }
 GEO = {"lat": -22.2323, "lng": -48.6789}
 
+# Google Meu Negócio (Maps). URL canônica sem params de sessão; troque pelo link
+# "Compartilhar" do painel se tiver g.page ou /maps/place/... com Place ID fixo.
+GOOGLE_MAPS_URL = (
+    "https://www.google.com/maps/search/?api=1&query=Nuna+Residencial+S%C3%AAnior"
+)
+
 # Imagem OG 1200x630 (gerada por generate_og_image)
 OG_REL_PATH = "wp-content/uploads/seo/og-nuna-residencial.jpg"
 OG_IMAGE = f"{BASE_URL}/{OG_REL_PATH}"
@@ -50,19 +56,21 @@ PAGES = [
     {"path": "/termos-de-uso/", "file": "termos-de-uso/index.html", "index": True},
 ]
 
+AREA_SERVED = ("Itapuí", "Bauru", "Jaú", "Botucatu", "região de Bauru/SP")
+
 PAGE_META = {
     "/": {
-        "title": "Nuna Residencial Sênior em Itapuí-SP | Cuidado 24h",
+        "title": "Residencial Sênior em Itapuí-SP | Nuna 24h",
         "description": (
-            "Residencial sênior em Itapuí (SP) com cuidado humanizado 24h, moradia permanente, "
-            "day use e reabilitação. Equipe especializada. Agende uma visita."
+            "Moradia para idosos em Itapuí (SP): cuidado 24h, day use, centro dia e reabilitação. "
+            "Nuna Residencial Sênior — região de Bauru. Agende visita pelo WhatsApp."
         ),
     },
     "/form/": {
-        "title": "Fale com a Nuna | Residencial Sênior Itapuí-SP",
+        "title": "Agendar visita | Residencial Sênior Nuna Itapuí",
         "description": (
-            "Qualifique seu interesse e fale com a equipe da Nuna Residencial Sênior em Itapuí. "
-            "Moradia permanente, day use, temporada e centro dia."
+            "Fale com a Nuna em Itapuí: moradia permanente, day use e centro dia para idosos. "
+            "Qualifique seu interesse e agende visita com a equipe pelo WhatsApp."
         ),
     },
     "/politica-de-privacidade/": {
@@ -118,6 +126,16 @@ FAQ_ITEMS = [
         "Quais profissionais fazem parte da equipe de cuidado?",
         "Médicos, enfermeiros, técnicos e auxiliares de enfermagem, fisioterapeutas e "
         "cuidadores treinados, dedicados a uma assistência completa e humanizada.",
+    ),
+    (
+        "O Nuna atende famílias de outras cidades além de Itapuí?",
+        "Sim. Atendemos famílias de Itapuí, Bauru, Jaú, Botucatu e região, com visitas "
+        "agendadas e processo de admissão orientado pela equipe.",
+    ),
+    (
+        "Como agendar uma visita ao residencial sênior Nuna em Itapuí?",
+        f"Pelo WhatsApp ou telefone {PHONE_DISPLAY}, ou pelo formulário em "
+        f"{BASE_URL}/form/. A equipe combina data e horário para conhecer as instalações.",
     ),
 ]
 
@@ -246,8 +264,17 @@ def head_block(path: str, *, index: bool) -> str:
         f'<meta name="twitter:description" content="{meta["description"]}">',
         f'<meta name="twitter:image" content="{OG_IMAGE}">',
         f'<link rel="alternate" hreflang="pt-BR" href="{url}">',
+        f'<link rel="alternate" hreflang="x-default" href="{url}">',
     ]
     if path == "/":
+        lines.extend(
+            [
+                '<meta name="geo.region" content="BR-SP">',
+                f'<meta name="geo.placename" content="{ADDRESS["city"]}">',
+                f'<meta name="geo.position" content="{GEO["lat"]};{GEO["lng"]}">',
+                f'<meta name="ICBM" content="{GEO["lat"]}, {GEO["lng"]}">',
+            ]
+        )
         lines.append(schema_home())
     return "\n".join(lines)
 
@@ -278,6 +305,17 @@ def schema_home() -> str:
                 ),
                 "telephone": PHONE_E164,
                 "email": EMAIL,
+                "foundingDate": "2017",
+                "contactPoint": [
+                    {
+                        "@type": "ContactPoint",
+                        "telephone": PHONE_E164,
+                        "email": EMAIL,
+                        "contactType": "customer service",
+                        "areaServed": "BR",
+                        "availableLanguage": ["Portuguese", "pt-BR"],
+                    }
+                ],
                 "address": {
                     "@type": "PostalAddress",
                     "streetAddress": ADDRESS["street"],
@@ -291,6 +329,7 @@ def schema_home() -> str:
                     "latitude": GEO["lat"],
                     "longitude": GEO["lng"],
                 },
+                "hasMap": GOOGLE_MAPS_URL,
                 "openingHoursSpecification": [
                     {
                         "@type": "OpeningHoursSpecification",
@@ -322,13 +361,19 @@ def schema_home() -> str:
                     },
                 ],
                 "sameAs": [
+                    GOOGLE_MAPS_URL,
                     "https://www.facebook.com/nunaresidencial",
                     "https://www.instagram.com/nunasenior",
                 ],
-                "areaServed": {
-                    "@type": "AdministrativeArea",
-                    "name": "Itapuí e região de Bauru, SP",
-                },
+                "areaServed": [
+                    {"@type": "City", "name": city} for city in AREA_SERVED[:4]
+                ]
+                + [
+                    {
+                        "@type": "AdministrativeArea",
+                        "name": "Região de Bauru, São Paulo, Brasil",
+                    }
+                ],
                 "hasOfferCatalog": {
                     "@type": "OfferCatalog",
                     "name": "Serviços do Residencial Nuna",
@@ -349,11 +394,14 @@ def schema_home() -> str:
                 "description": PAGE_META["/"]["description"],
                 "isPartOf": {"@id": f"{BASE_URL}/#website"},
                 "about": {"@id": f"{BASE_URL}/#organization"},
+                "mainEntity": {"@id": f"{BASE_URL}/#faq"},
                 "inLanguage": "pt-BR",
             },
             {
                 "@type": "FAQPage",
                 "@id": f"{BASE_URL}/#faq",
+                "isPartOf": {"@id": f"{BASE_URL}/#webpage"},
+                "about": {"@id": f"{BASE_URL}/#organization"},
                 "mainEntity": [
                     {
                         "@type": "Question",
@@ -369,11 +417,12 @@ def schema_home() -> str:
     return f'<script type="application/ld+json">{payload}</script>'
 
 
-ANSWER_CAPSULE = """<p class="nuna-answer-capsule" id="nuna-resposta-principal">
+ANSWER_CAPSULE = f"""<p class="nuna-answer-capsule" id="nuna-resposta-principal">
   <strong>O que é o Nuna Residencial Sênior?</strong>
   O Nuna é um residencial sênior em Itapuí (SP), em meio à natureza, com cuidado humanizado 24 horas.
-  Oferece moradia permanente, day use, estadias por temporada e centro dia, com equipe multiprofissional
-  e seis refeições diárias. Fundado em 2017 por enfermeiras especializadas em geriatria.
+  Oferece moradia permanente para idosos, day use, estadias por temporada e centro dia, com equipe
+  multiprofissional e seis refeições diárias. Atende famílias de Itapuí, Bauru e região.
+  Fundado em 2017 por enfermeiras especializadas em geriatria. Contato: {PHONE_DISPLAY} ou WhatsApp.
 </p>"""
 
 # CSS dos CTAs padronizados — reusado em landing e /form
@@ -401,6 +450,7 @@ SEO_STYLES = """<!-- nuna-seo-body -->
 <style>
 .nuna-answer-capsule{max-width:720px;margin:0 auto 1.25rem;padding:0 1rem;font-size:1rem;line-height:1.6;color:#4a4350;text-align:center}
 .nuna-answer-capsule strong{display:block;font-family:inherit;color:#574860;margin-bottom:.35rem}
+.nuna-faq-intro{max-width:640px;margin:0 auto;font-size:1rem;line-height:1.55;color:#4a4350;font-weight:400}
 *:focus-visible{outline:2px solid #6D5873;outline-offset:2px}
 """ + CTA_CSS + """
 </style>"""
@@ -478,6 +528,18 @@ def strip_old_seo(html: str) -> str:
     html = re.sub(r'<script type="application/ld\+json">.*?</script>\n?', "", html, flags=re.S)
     html = re.sub(r'<div class="elementor-widget-container nuna-capsule-wrap">.*?</div>\n?', "", html, flags=re.S)
     html = re.sub(r'<p class="nuna-answer-capsule" id="nuna-resposta-principal">.*?</p>\n?', "", html, flags=re.S)
+    html = re.sub(
+        r'<div class="elementor-widget-container nuna-capsule-wrap">.*?</div>\n?',
+        "",
+        html,
+        flags=re.S,
+    )
+    html = re.sub(
+        r'<p class="nuna-faq-intro[^"]*">.*?</p>\s*',
+        "",
+        html,
+        flags=re.S,
+    )
     return html
 
 
@@ -547,7 +609,11 @@ def patch_landing(html: str) -> str:
     )
 
     html = patch_image_alts(html)
+    html = patch_answer_capsule(html)
+    html = patch_faq_semantics(html)
+    html = patch_nap_footer(html)
     html = patch_social_links(html)
+    html = patch_footer_maps_link(html)
     html = restyle_ctas(html)
     html = html.replace("© 2025 -", "© 2026 —")
 
@@ -573,6 +639,9 @@ def patch_form(html: str) -> str:
         html,
     )
     html = html.replace('href="index.html"', 'href="/"')
+    html = patch_nap_footer(html)
+    html = patch_social_links(html)
+    html = patch_footer_maps_link(html)
     html = restyle_ctas(html)
     if "<!-- nuna-cta-css -->" not in html:
         html = html.replace("</body>", CTA_STYLE_BLOCK + "\n</body>", 1)
@@ -610,6 +679,112 @@ def patch_social_links(html: str) -> str:
     )
 
 
+def patch_answer_capsule(html: str) -> str:
+    """Answer capsule (GEO/AEO) logo apos o H1 do hero. Idempotente."""
+    if 'id="nuna-resposta-principal"' in html:
+        return html
+    return re.sub(
+        r'(<h1 class="elementor-heading-title[^"]*">Residencial sênior em Itapuí:.*?</h1>\s*</div>\s*</div>)',
+        r'\1\n\t\t\t\t<div class="elementor-widget-container nuna-capsule-wrap">\n'
+        + ANSWER_CAPSULE
+        + "\n\t\t\t\t</div>",
+        html,
+        count=1,
+        flags=re.S,
+    )
+
+
+FAQ_INTRO_OLD = (
+    '<h2 class="elementor-heading-title elementor-size-default">Confira as respostas para as '
+    "perguntas mais comuns sobre nossos serviços, cuidados e instalações. Estamos aqui para "
+    "garantir que você tenha todas as informações necessárias para tomar a melhor decisão.</h2>"
+)
+FAQ_INTRO_NEW = (
+    '<p class="nuna-faq-intro">Confira as respostas para as perguntas mais comuns sobre nossos '
+    "serviços, cuidados e instalações em Itapuí. Estamos aqui para ajudar sua família a decidir "
+    "com segurança.</p>"
+)
+
+
+def patch_faq_semantics(html: str) -> str:
+    """Converte paragrafo-intro da FAQ de H2 incorreto para <p>. Idempotente."""
+    if "nuna-faq-intro" in html:
+        return html
+    return html.replace(FAQ_INTRO_OLD, FAQ_INTRO_NEW)
+
+
+def patch_nap_footer(html: str) -> str:
+    """NAP clicavel no rodape (tel, Maps, mailto). Idempotente."""
+    phone_link = (
+        f'<a href="tel:{PHONE_E164}" class="elementor-icon-list-text">{PHONE_DISPLAY}</a>'
+    )
+    address_link = (
+        f'<a href="{GOOGLE_MAPS_URL}" class="elementor-icon-list-text" target="_blank" '
+        f'rel="noopener noreferrer">Estrada do Baririzinho, 1899, Itapuí - SP</a>'
+    )
+    email_link = f'<a href="mailto:{EMAIL}" class="elementor-icon-list-text">{EMAIL}</a>'
+    html = html.replace(
+        f'<span class="elementor-icon-list-text">{PHONE_DISPLAY}</span>',
+        phone_link,
+    )
+    html = html.replace(
+        '<span class="elementor-icon-list-text">Estrada do Baririzinho, 1899, Itapuí - SP</span>',
+        address_link,
+    )
+    html = re.sub(
+        r'<span class="elementor-icon-list-text"><a href="/cdn-cgi/l/email-protection"[^>]*>.*?</a></span>',
+        email_link,
+        html,
+        flags=re.S,
+    )
+    html = re.sub(
+        r'<span class="elementor-icon-list-text"><a href="mailto:[^"]*" class="elementor-icon-list-text">([^<]*)</a></span>',
+        email_link,
+        html,
+    )
+    return html
+
+
+MAPS_SOCIAL_MARKER = "elementor-social-icon-google-maps"
+MAPS_FOOTER_ITEM = f"""							<span class="elementor-grid-item" role="listitem">
+					<a class="elementor-icon elementor-social-icon elementor-social-icon-google-maps elementor-repeater-item-nuna-gmaps" href="{GOOGLE_MAPS_URL}" target="_blank" rel="noopener noreferrer">
+						<span class="elementor-screen-only">Google Maps</span>
+						<svg aria-hidden="true" class="e-font-icon-svg e-fas-map-marker-alt" viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg"><path d="M172.268 501.67C27.97 291.031 0 269.413 0 192c0-106.039 85.961-192 192-192s192 85.961 192 192c0 77.413-27.97 99.031-172.268 309.67-9.535 13.774-29.93 13.773-39.464 0zM192 272c44.183 0 80-35.817 80-80s-35.817-80-80-80-80 35.817-80 80 35.817 80 80 80z"></path></svg>					</a>
+				</span>"""
+
+
+def patch_footer_maps_link(html: str) -> str:
+    """Ícone Google Maps no rodapé (widget social-icons 8526c79). Idempotente."""
+    html = re.sub(
+        r"\s*<span class=\"elementor-grid-item\" role=\"listitem\">\s*"
+        r"<a class=\"elementor-icon elementor-social-icon elementor-social-icon-google-maps"
+        r"[\s\S]*?</span>",
+        "",
+        html,
+        count=0,
+    )
+    if 'data-id="8526c79"' not in html:
+        return html
+
+    def _insert(m: re.Match[str]) -> str:
+        block = m.group(0)
+        if MAPS_SOCIAL_MARKER in block:
+            return re.sub(
+                r'(elementor-social-icon-google-maps[^"]*" href=")[^"]*(")',
+                rf"\1{GOOGLE_MAPS_URL}\2",
+                block,
+            )
+        return m.group(1) + "\n" + MAPS_FOOTER_ITEM + m.group(2)
+
+    return re.sub(
+        r'(data-id="8526c79"[\s\S]*?elementor-social-icon-instagram[\s\S]*?</svg>\s*</a>\s*</span>)'
+        r'(\s*</div>\s*</div>\s*</div>\s*<div class="elementor-element elementor-element-9e51d1d)',
+        _insert,
+        html,
+        count=1,
+    )
+
+
 def legal_controller_intro() -> str:
     if LEGAL_RAZAO and LEGAL_CNPJ:
         return (
@@ -642,7 +817,47 @@ li{margin-bottom:7px}
 .lp-foot a{margin:0 8px}"""
 
 
-def legal_head(path: str) -> str:
+def schema_legal_page(path: str, breadcrumb_name: str) -> str:
+    url = BASE_URL + path
+    graph = {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "BreadcrumbList",
+                "@id": f"{url}#breadcrumb",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Início",
+                        "item": BASE_URL + "/",
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": breadcrumb_name,
+                        "item": url,
+                    },
+                ],
+            },
+            {
+                "@type": "WebPage",
+                "@id": f"{url}#webpage",
+                "url": url,
+                "name": PAGE_META[path]["title"],
+                "description": PAGE_META[path]["description"],
+                "isPartOf": {"@id": f"{BASE_URL}/#website"},
+                "about": {"@id": f"{BASE_URL}/#organization"},
+                "breadcrumb": {"@id": f"{url}#breadcrumb"},
+                "inLanguage": "pt-BR",
+            },
+        ],
+    }
+    payload = json.dumps(graph, ensure_ascii=False, separators=(",", ":"))
+    return f'<script type="application/ld+json">{payload}</script>'
+
+
+def legal_head(path: str, *, breadcrumb_name: str) -> str:
     meta = PAGE_META[path]
     url = BASE_URL + path
     return f"""<meta charset="UTF-8">
@@ -650,22 +865,29 @@ def legal_head(path: str) -> str:
 <title>{meta['title']}</title>
 <!-- nuna-seo-head -->
 <meta name="description" content="{meta['description']}">
-<meta name="robots" content="index,follow">
+<meta name="robots" content="index,follow,max-image-preview:large">
 <link rel="canonical" href="{url}">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="Nuna Residencial Sênior">
 <meta property="og:title" content="{meta['title']}">
 <meta property="og:description" content="{meta['description']}">
 <meta property="og:url" content="{url}">
 <meta property="og:image" content="{OG_IMAGE}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{breadcrumb_name} — {ENTITY_NAME}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{meta['title']}">
 <meta name="twitter:description" content="{meta['description']}">
 <meta name="twitter:image" content="{OG_IMAGE}">
+<link rel="alternate" hreflang="pt-BR" href="{url}">
+<link rel="alternate" hreflang="x-default" href="{url}">
 <link rel="icon" href="/wp-content/uploads/2024/09/favicon.png">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="/wp-content/fonts/fraunces/fraunces-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="/wp-content/fonts/mulish/mulish-latin.woff2">
 <link rel="stylesheet" href="/wp-content/fonts/fonts.css">
+{schema_legal_page(path, breadcrumb_name)}
 <style>
 {LEGAL_STYLES}
 </style>"""
@@ -677,10 +899,10 @@ def write_politica_privacidade() -> None:
     html = f"""<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-{legal_head("/politica-de-privacidade/")}
+{legal_head("/politica-de-privacidade/", breadcrumb_name="Política de Privacidade")}
 </head>
 <body>
-<header class="lp-head"><img src="/wp-content/uploads/2024/09/logo.svg" alt="{ENTITY_NAME}"></header>
+<header class="lp-head"><a href="/"><img src="/wp-content/uploads/2024/09/logo.svg" alt="{ENTITY_NAME}"></a></header>
 <main class="lp-wrap">
  <a class="lp-back" href="/">&larr; Voltar ao site</a>
  <h1>Política de Privacidade</h1>
@@ -770,10 +992,10 @@ def write_termos_uso() -> None:
     html = f"""<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-{legal_head("/termos-de-uso/")}
+{legal_head("/termos-de-uso/", breadcrumb_name="Termos de Uso")}
 </head>
 <body>
-<header class="lp-head"><img src="/wp-content/uploads/2024/09/logo.svg" alt="{ENTITY_NAME}"></header>
+<header class="lp-head"><a href="/"><img src="/wp-content/uploads/2024/09/logo.svg" alt="{ENTITY_NAME}"></a></header>
 <main class="lp-wrap">
  <a class="lp-back" href="/">&larr; Voltar ao site</a>
  <h1>Termos de Uso</h1>
@@ -877,21 +1099,26 @@ def write_robots() -> None:
     (SITE / "robots.txt").write_text(
         f"""User-agent: *
 Allow: /
+Disallow: /form/
 
 User-agent: GPTBot
 Allow: /
+Disallow: /form/
 
 User-agent: ChatGPT-User
 Allow: /
+Disallow: /form/
 
 User-agent: Google-Extended
 Allow: /
 
 User-agent: anthropic-ai
 Allow: /
+Disallow: /form/
 
 User-agent: ClaudeBot
 Allow: /
+Disallow: /form/
 
 Sitemap: {BASE_URL}/sitemap.xml
 """,
@@ -925,38 +1152,48 @@ def write_sitemap() -> None:
 
 
 def write_llms() -> None:
+    areas = ", ".join(AREA_SERVED)
     (SITE / "llms.txt").write_text(
         f"""# Nuna Residencial Sênior
 
-> Residencial sênior em Itapuí (SP) com cuidado humanizado 24h, moradia permanente, day use, temporada e centro dia.
+> Residencial sênior em Itapuí (SP) com cuidado humanizado 24h, moradia permanente para idosos, day use, temporada e centro dia.
 
-## Páginas principais
+## Páginas prioritárias (indexáveis)
 
 - Home: {BASE_URL}/
-- Formulário de contato: {BASE_URL}/form/
 - Política de privacidade: {BASE_URL}/politica-de-privacidade/
 - Termos de uso: {BASE_URL}/termos-de-uso/
 
-## Entidade
+## Página de conversão (noindex — não priorizar citação)
+
+- Formulário: {BASE_URL}/form/
+
+## Entidade (NAP)
 
 - Nome: {ENTITY_NAME}
 - Endereço: {ADDRESS_FULL}
-- Telefone: {PHONE_DISPLAY}
+- Telefone: {PHONE_DISPLAY} ({PHONE_E164})
 - E-mail: {EMAIL}
+- Google Maps (Meu Negócio): {GOOGLE_MAPS_URL}
 - Instagram: https://www.instagram.com/nunasenior
 - Facebook: https://www.facebook.com/nunaresidencial
 
-## Serviços
+## Área atendida
 
-- Moradia permanente com cuidados 24 horas
+{areas}
+
+## Serviços (intenção transacional)
+
+- Moradia permanente / residencial para idosos em Itapuí
 - Day use e estadia por temporada
 - Centro dia
-- Reabilitação pós-fratura e fisioterapia
+- Reabilitação pós-fratura e fisioterapia geriátrica
+- Agendamento de visita: WhatsApp {PHONE_DISPLAY} ou {BASE_URL}/form/
 
 ## Uso por sistemas de IA
 
-Este arquivo orienta crawlers de IA sobre páginas prioritárias. Não garante citação ou indexação em sistemas generativos.
-Conteúdo factual deve refletir apenas o que está publicado nas páginas listadas acima.
+Este arquivo orienta crawlers sobre páginas e fatos publicados. Não garante citação em buscadores generativos.
+Priorize a home para respostas sobre o que é o Nuna, serviços, localização e contato.
 """,
         encoding="utf-8",
     )

@@ -1,19 +1,24 @@
 User-agent: *
 Allow: /
+Disallow: /form/
 
 User-agent: GPTBot
 Allow: /
+Disallow: /form/
 
 User-agent: ChatGPT-User
 Allow: /
+Disallow: /form/
 
 User-agent: Google-Extended
 Allow: /
 
 User-agent: anthropic-ai
 Allow: /
+Disallow: /form/
 
 User-agent: ClaudeBot
 Allow: /
+Disallow: /form/
 
 Sitemap: https://nunaresidencial.com.br/sitemap.xml
