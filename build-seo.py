@@ -609,7 +609,8 @@ def patch_landing(html: str) -> str:
     )
 
     html = patch_image_alts(html)
-    html = patch_answer_capsule(html)
+    # Answer capsule (GEO/AEO) desativada a pedido: nao deve aparecer na home.
+    # html = patch_answer_capsule(html)
     html = patch_faq_semantics(html)
     html = patch_nap_footer(html)
     html = patch_social_links(html)
