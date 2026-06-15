@@ -270,15 +270,39 @@ FUNNEL = r"""
   });
  });
 
+ function whatsDigits(){
+  return lead.whatsapp.replace(/\D/g,'');
+ }
+
+ function buildWebhookPayload(){
+  var now=new Date();
+  var pad=function(n){return String(n).padStart(2,'0');};
+  var tel=whatsDigits();
+  var mensalidade='';
+  if(lead.categoria==='apto') mensalidade='Sim';
+  else if(lead.categoria==='orcamento') mensalidade='Nao';
+  return {
+   status: lead.categoria==='apto'?'Qualificado':lead.categoria==='orcamento'?'Orcamento abaixo':'Emprego',
+   estado_uf: '',
+   link_whatsapp: tel?'https://wa.me/55'+tel:'',
+   data: pad(now.getDate())+'/'+pad(now.getMonth()+1)+'/'+now.getFullYear(),
+   hora: pad(now.getHours())+':'+pad(now.getMinutes()),
+   nome: lead.nome,
+   telefone: tel,
+   email: '',
+   mensalidade_6000: mensalidade,
+   orcamento: lead.orcamento||'',
+   categoria: lead.categoria,
+   origem: 'form'
+  };
+ }
+
  function sendWebhook(){
   try{
    fetch(WEBHOOK,{
     method:'POST', keepalive:true,
-    headers:{'Content-Type':'text/plain;charset=UTF-8'},
-    body:JSON.stringify({
-     nome:lead.nome, whatsapp:lead.whatsapp, categoria:lead.categoria,
-     orcamento:lead.orcamento, origem:'form', timestamp:new Date().toISOString()
-    })
+    headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},
+    body: new URLSearchParams(buildWebhookPayload()).toString()
    }).catch(function(){});
   }catch(e){}
  }
