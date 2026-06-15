@@ -45,7 +45,20 @@ def rewrite_assets(html: str) -> str:
 # build-seo (regex marcador->/body) o apagaria. Removemos o bloco aqui para
 # gerar o /form a partir de um index limpo; o build-seo reaplica o SEO de cabeca.
 def strip_seo_body(html: str) -> str:
-    return re.sub(r"<!-- nuna-seo-body -->.*?(?=</body>)", "", html, flags=re.S)
+    html = re.sub(r"<!-- nuna-seo-body -->.*?(?=</body>)", "", html, flags=re.S)
+    html = re.sub(
+        r'<div class="elementor-widget-container nuna-capsule-wrap">.*?</div>\s*',
+        "",
+        html,
+        flags=re.S,
+    )
+    html = re.sub(
+        r'<p class="nuna-answer-capsule" id="nuna-resposta-principal">.*?</p>\s*',
+        "",
+        html,
+        flags=re.S,
+    )
+    return html
 
 # --- 2. widget do funil (CSS + HTML + JS) ------------------------------------
 FUNNEL = r"""
@@ -284,7 +297,7 @@ FUNNEL = r"""
   return {
    status: lead.categoria==='apto'?'Qualificado':lead.categoria==='orcamento'?'Orcamento abaixo':'Emprego',
    estado_uf: '',
-   link_whatsapp: tel?'https://wa.me/55'+tel:'',
+   link_whatsapp: tel?'https://wa.me/'+tel:'',
    data: pad(now.getDate())+'/'+pad(now.getMonth()+1)+'/'+now.getFullYear(),
    hora: pad(now.getHours())+':'+pad(now.getMinutes()),
    nome: lead.nome,
